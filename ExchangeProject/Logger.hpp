@@ -18,6 +18,7 @@ public:
 	 void error(std::string_view msg);
 	 ~Logger() = default;
 private:
+	State_Level currentLevel;
 	Logger() { std::cout << "\nLgger/file успешно создан!\n"; };
 	void log(State_Level level, std::string_view msg);
 };
