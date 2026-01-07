@@ -9,6 +9,8 @@
 #include<fstream>
 #include<format>
 #include<chrono>
+#include<vector>
+#include<algorithm>
 //===================Макросы==========================
 #define Log_Intence Logger::GetIntence
 #define Log_Info(msg) Logger::GetIntence().info(msg)
@@ -24,7 +26,7 @@
 //========================Logger__Class====================
 class Logger {
 public:
-	enum class State_Level {INFO,TRACE,DEBUG,CRITICAL,WARN,ERROR};
+	enum class State_Level { TRACE,DEBUG,INFO,WARN,ERROR,CRITICAL};
 	static Logger& GetIntence();
 	 Logger(const Logger&) = delete;
 	 Logger& operator=(const Logger&) = delete;
@@ -40,8 +42,8 @@ private:
 	State_Level currentLevel;
 	Logger() { std::cout << "\nLgger/file успешно создан!\n"; };
 	void log(State_Level level, std::string_view msg);
-	std::string getCurrentTime();
-	std::string LeveltoString();
+	std::string_view getCurrentTime();
+	std::string_view LeveltoString(State_Level level);
 };
 //=============================================================
 
