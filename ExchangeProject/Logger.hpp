@@ -1,6 +1,8 @@
-#pragma once
-#ifdef _LOGGER_HPP_
+//===================Защита от двойного включения===========
+#pragma once 
+#ifndef _LOGGER_HPP_
 #define _LOGGER_HPP_
+//===========================================================
 #include<string>
 #include <string_view>
 #include<iostream>
@@ -36,4 +38,6 @@ private:
 	Logger() { std::cout << "\nLgger/file успешно создан!\n"; };
 	void log(State_Level level, std::string_view msg);
 };
+//===================Защита от двойного включения===========
 #endif // #ifdef _LOGGER_HPP_
+//===========================================================

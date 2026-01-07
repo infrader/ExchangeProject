@@ -1,6 +1,6 @@
 #include"Logger.hpp"
 
-Logger& Logger::GetIntence(){
+Logger& Logger::GetIntence() {
 	static Logger intence;
 	return intence;
 }

@@ -1,4 +1,5 @@
 ﻿#include<iostream>
+#include"Logger.hpp"
 #include <cpr/cpr.h>
 
 int main() {			// Главная функция main
