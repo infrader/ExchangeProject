@@ -1,9 +1,7 @@
 ﻿#include<iostream>
 #include"Logger.hpp"
 #include <cpr/cpr.h>
-
+#include<chrono>
 int main() {			// Главная функция main
 	
-	std::cout << "Hello\n";
-	std::cin.get();
 }

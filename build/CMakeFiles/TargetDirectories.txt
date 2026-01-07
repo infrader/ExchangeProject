@@ -1,0 +1,3 @@
+C:/Users/infrad/source/repos/ExchangeProject/build/CMakeFiles/exchange_bot.dir
+C:/Users/infrad/source/repos/ExchangeProject/build/CMakeFiles/ALL_BUILD.dir
+C:/Users/infrad/source/repos/ExchangeProject/build/CMakeFiles/ZERO_CHECK.dir

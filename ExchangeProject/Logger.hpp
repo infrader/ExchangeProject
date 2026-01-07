@@ -7,7 +7,8 @@
 #include <string_view>
 #include<iostream>
 #include<fstream>
-
+#include<format>
+#include<chrono>
 //===================Макросы==========================
 #define Log_Intence Logger::GetIntence
 #define Log_Info(msg) Logger::GetIntence().info(msg)
@@ -19,6 +20,8 @@
 #define Log_SetLoggerFile(msg) Logger::GetIntence().setLogger_file(msg)
 //====================================================
 
+
+//========================Logger__Class====================
 class Logger {
 public:
 	enum class State_Level {INFO,TRACE,DEBUG,CRITICAL,WARN,ERROR};
@@ -37,7 +40,11 @@ private:
 	State_Level currentLevel;
 	Logger() { std::cout << "\nLgger/file успешно создан!\n"; };
 	void log(State_Level level, std::string_view msg);
+	std::string getCurrentTime();
+	std::string LeveltoString();
 };
+//=============================================================
+
 //===================Защита от двойного включения===========
 #endif // #ifdef _LOGGER_HPP_
 //===========================================================
