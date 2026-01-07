@@ -4,7 +4,9 @@
 #include<chrono>
 int main() {// Главная функция main
 	setlocale(LC_ALL, "ru");
-	Log_SetLogFile("Log.txt");
+	std::string logFile = "Log.txt";
+	Log_SetLogFile(logFile);
 	Log_Info("Бот для отслеживания бирж открыт!");
 	Log_Info("Бот для отслеживания бирж закрыт!");
 }
+//
