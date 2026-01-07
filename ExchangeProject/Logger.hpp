@@ -13,6 +13,7 @@
 #include<algorithm>
 //===================ћакросы==========================
 #define Log_Intence Logger::GetIntence
+#define Log_SetLogFile(msg) Logger::GetIntence().setLogger_file(msg)
 #define Log_Info(msg) Logger::GetIntence().info(msg)
 #define Log_Trace(msg) Logger::GetIntence().trace(msg)
 #define Log_Debug(msg) Logger::GetIntence().debug(msg)
@@ -37,13 +38,16 @@ public:
 	 void critical(std::string_view msg);
 	 void warn(std::string_view msg);
 	 void error(std::string_view msg);
+	 void setCurrenLevel(State_Level lvl);
 	 ~Logger() = default;
 private:
 	State_Level currentLevel;
-	Logger() { std::cout << "\nLgger/file успешно создан!\n"; };
+	Logger(): currentLevel(State_Level::CRITICAL)  { std::cout << "Lgger/file успешно создан!\n"; };
 	void log(State_Level level, std::string_view msg);
 	std::string_view getCurrentTime();
 	std::string_view LeveltoString(State_Level level);
+	std::ofstream logger_file;
+	std::string nameFile;
 };
 //=============================================================
 
