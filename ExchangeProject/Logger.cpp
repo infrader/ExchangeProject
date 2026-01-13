@@ -24,8 +24,6 @@ void Logger::critical(const std::string& msg)
 void Logger::warn(const std::string& msg)
 {log(Logger::State_Level::WARN, msg);}
 
-void Logger::error(const std::string& msg)
-{log(Logger::State_Level::ERROR, msg);}
 void Logger::setCurrenLevel(State_Level lvl){
     currentLevel = lvl;
 }
@@ -43,6 +41,7 @@ void Logger::log(State_Level level, const std::string& msg){
                 std::string str_info_log = msg_format;
                 logger_file << str_info_log << "\n";
                 logger_file.close();
+                std::cout << msg_format << "\n";
             }
             else {
                 std::string error_open = std::format("[{}] [{}] {}", Logger::getCurrentTime(), "File", "Error file isn`t Open");
@@ -74,8 +73,7 @@ const std::string& Logger::LeveltoString(State_Level level) // функция чтобы в т
         {1,"DEBUG"},
         {2,"INFO"},
         {3,"WARN"},
-        {4,"ERROR"},
-        {5,"CRITICAL"},
+        {4,"CRITICAL"},
     };
     auto result = std::find_if(begin(level_pair), end(level_pair),
         [level](std::pair<int, std::string> x) {return x.first == static_cast<int>(level);});

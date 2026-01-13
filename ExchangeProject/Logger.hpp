@@ -19,7 +19,6 @@
 #define Log_Debug(msg) Logger::GetIntence().debug(msg)
 #define Log_Critical(msg) Logger::GetIntence().critical(msg)
 #define Log_Warn(msg) Logger::GetIntence().warn(msg)
-#define Log_Error(msg) Logger::GetIntence().error(msg)
 #define Log_SetLoggerFile(msg) Logger::GetIntence().setLogger_file(msg)
 //====================================================
 
@@ -27,7 +26,7 @@
 //========================Logger__Class====================
 class Logger {
 public:
-	enum class State_Level { TRACE,DEBUG,INFO,WARN,ERROR,CRITICAL};
+	enum class State_Level { TRACE,DEBUG,INFO,WARN,CRITICAL};
 	static Logger& GetIntence();
 	 Logger(const Logger&) = delete;
 	 Logger& operator=(const Logger&) = delete;
@@ -37,7 +36,6 @@ public:
 	 void debug(const std::string& msg);
 	 void critical(const std::string& msg);
 	 void warn(const std::string& msg);
-	 void error(const std::string& msg);
 	 void setCurrenLevel(State_Level lvl);
 	 ~Logger() = default;
 private:
