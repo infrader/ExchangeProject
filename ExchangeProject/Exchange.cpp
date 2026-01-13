@@ -8,33 +8,11 @@ std::string Exchange::get_api() {
 	return this->Api;
 }
 
+std::unordered_map<std::string, TokenInfo> Exchange::double_buffer() {
+	
 
-std::unordered_map<std::string, TokenInfo> Exchange::double_buffer(){
-	expired_cache(cache_B);
-	expired_cache(cache_A);
-	if (cache_A.state == FRESH && cache_B.state == FRESH) {
-		return cache_A.data_buffer;
-	}
-	else if (cache_A.state == EXPIRED && cache_B.state == EXPIRED) {
-		std::thread upload_cache([&]() {Exchange::excange_cache(cache_B);});
-		return cache_A.data_buffer;
-	}
-	else if (cache_A.state == UNLOADING && cache_B.state == EXPIRED) {
-		return cache_B.data_buffer;
-	}
-	else if (cache_A.state == EXPIRED && cache_B.state == UNLOADING) {
-		return cache_A.data_buffer;
-	}
-	else if (cache_A.state == FRESH && cache_B.state == EXPIRED || cache_B.state == UNLOADING) {
-		std::thread upload_cache([&]() {cache_B = cache_A; });
-		return cache_A.data_buffer;
-	} 
-	else if (cache_B.state == FRESH && cache_A.state == EXPIRED || cache_A.state == UNLOADING) {
-		std::thread upload_cache([&]() {cache_A = cache_B; });
-		return cache_B.data_buffer;
-	}
+
 }
-
 void Exchange::excange_cache(cache& cache){
 	load_lock.lock();
 		try {
@@ -76,5 +54,20 @@ void Exchange::expired_cache(cache& cache)
 	catch (...) {
 		Log_Critical("Критическая ошибка с определением expired_cache!");
 	}
+}
+
+
+Exchange::cache* Exchange::get_active()
+{
+	return active_cache.load();
+}
+
+Exchange::cache* Exchange::get_inactive()
+{
+	return get_active() == &cache_A  ? &cache_B: &cache_A;
+}
+
+void Exchange::switch_active(){
+	get_active() ? &cache_A : &cache_B;
 }
 

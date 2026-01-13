@@ -8,6 +8,7 @@
 #include"Logger.hpp"
 #include<memory>
 #include<thread>
+#include <atomic>
 #include<mutex>
 using namespace std::chrono_literals;
 struct TokenInfo{
@@ -20,7 +21,6 @@ class Exchange{
 public:
 	void set_api(std::string api_name);
 	std::string get_api(); 
-	TokenInfo get_token(std::string symbol);
 private:
 	std::mutex load_lock;
 	enum cache_state { FRESH, EXPIRED, UNLOADING };
@@ -31,6 +31,10 @@ private:
 		static std::chrono::seconds update_period;
 		std::unordered_map<std::string, TokenInfo> data_buffer;
 	};
+	std::atomic<cache*> active_cache{ &cache_A };
+	Exchange::cache* get_active();
+	Exchange::cache* get_inactive();
+	void switch_active();
 	std::unordered_map<std::string, TokenInfo> double_buffer();
 	std::string Api;
 	cache cache_B;
