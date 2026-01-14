@@ -21,7 +21,10 @@ class Exchange{
 public:
 	void set_api(std::string api_name);
 	std::string get_api(); 
+	~Exchange();
 private:
+	std::atomic<bool> lock_update{false};
+	std::mutex update_mtx;
 	std::mutex load_lock;
 	enum cache_state { FRESH, EXPIRED, UNLOADING };
 	struct cache {

@@ -8,6 +8,12 @@ std::string Exchange::get_api() {
 	return this->Api;
 }
 
+Exchange::~Exchange(){
+	while (lock_update.load()) {
+		std::this_thread::yield();
+	}
+}
+
 std::unordered_map<std::string, TokenInfo> Exchange::double_buffer() {
 	cache* active = active_cache.load();
 	expired_cache(*active);
@@ -25,13 +31,21 @@ std::unordered_map<std::string, TokenInfo> Exchange::double_buffer() {
 		return active->data_buffer;
 	}
 	if (active_state == EXPIRED && inactive_state == EXPIRED) {
-		std::thread th([this, inactive]() {
-			excange_cache(*inactive);
-			});
-		th.detach();
+		bool expected = false;
+		if(lock_update.compare_exchange_strong(expected, true)){
+			std::thread th([this, inactive]() {
+				try
+				{
+					excange_cache(*inactive);
+					this->lock_update = false;
+				}
+				catch (...) { this->lock_update = false; }
+				});
+			th.detach(); // Очень слабая сторона переработать в пул потоков 
+		}
 		return active->data_buffer;
 	}
-}
+	}
 void Exchange::excange_cache(cache& cache){
 	std::lock_guard<std::mutex> cache_lc(load_lock);
 		try {
@@ -45,12 +59,17 @@ void Exchange::excange_cache(cache& cache){
 			cache.data_buffer = parse(exchange_response);
 			cache.last_update = std::chrono::steady_clock::now();
 			cache.state = cache_state::FRESH;
+			this->lock_update = false;
 		}
 		catch (const std::runtime_error& er) {
 			Log_Warn(er.what());
+			cache.state = cache_state::EXPIRED;
+			this->lock_update = false;
 		}
 		catch (...) {
-
+			Log_Critical("Неизвестная ошибка excange_cache");
+			cache.state = cache_state::EXPIRED;
+			this->lock_update = false;
 		}
 	}
 
