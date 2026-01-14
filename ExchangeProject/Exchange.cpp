@@ -9,12 +9,31 @@ std::string Exchange::get_api() {
 }
 
 std::unordered_map<std::string, TokenInfo> Exchange::double_buffer() {
-	
-
-
+	cache* active = active_cache.load();
+	expired_cache(*active);
+	cache_state active_state = active->state;
+	if (active_state == FRESH) {
+		return active->data_buffer;
+	}
+	cache* inactive = get_inactive();
+	cache_state inactive_state = inactive->state;
+	if (active_state == EXPIRED && inactive_state == FRESH) {
+		active_cache.store(inactive);
+		return active->data_buffer;
+	}
+	if (active_state == EXPIRED && inactive_state == UNLOADING) {
+		return active->data_buffer;
+	}
+	if (active_state == EXPIRED && inactive_state == EXPIRED) {
+		std::thread th([this, inactive]() {
+			excange_cache(*inactive);
+			});
+		th.detach();
+		return active->data_buffer;
+	}
 }
 void Exchange::excange_cache(cache& cache){
-	load_lock.lock();
+	std::lock_guard<std::mutex> cache_lc(load_lock);
 		try {
 			cache.state = cache_state::UNLOADING;
 			exchange_session.SetUrl(cpr::Url(Api));
@@ -33,7 +52,6 @@ void Exchange::excange_cache(cache& cache){
 		catch (...) {
 
 		}
-	load_lock.unlock();
 	}
 
 void Exchange::expired_cache(cache& cache)
@@ -45,10 +63,10 @@ void Exchange::expired_cache(cache& cache)
 		}
 		auto expired_time = cache.last_update + Exchange::cache::update_period;
 		if (std::chrono::steady_clock::now() > expired_time) {
-			cache.state = cache_state::EXPIRED;
+			cache.state.store(cache_state::EXPIRED);
 			}
 		else {
-			cache.state = cache_state::FRESH;
+			cache.state.store(cache_state::FRESH);
 		}
 	}
 	catch (...) {

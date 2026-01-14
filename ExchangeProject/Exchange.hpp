@@ -26,7 +26,7 @@ private:
 	enum cache_state { FRESH, EXPIRED, UNLOADING };
 	struct cache {
 	public:
-		cache_state state;
+		std::atomic<cache_state> state;
 		std::chrono::steady_clock::time_point last_update;
 		static std::chrono::seconds update_period;
 		std::unordered_map<std::string, TokenInfo> data_buffer;
