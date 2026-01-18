@@ -35,15 +35,10 @@ private:
 		std::unordered_map<std::string, TokenInfo> data_buffer;
 	};
 	std::atomic<cache*> active_cache{ &cache_A };
-	Exchange::cache* get_active();
-	Exchange::cache* get_inactive();
-	void switch_active();
-	std::unordered_map<std::string, TokenInfo> double_buffer();
 	std::string Api;
 	cache cache_B;
 	cache cache_A;
 	void excange_cache(cache& cache);
-	void expired_cache(cache& cache);
 	virtual std::unordered_map<std::string, TokenInfo> parse(cpr::Response exchange_response) = 0;
 	cpr::Session exchange_session;
 	cpr::Response exchange_response;
