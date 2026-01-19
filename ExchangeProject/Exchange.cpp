@@ -18,6 +18,25 @@ void Exchange::spin_upload_stop() // Перед тем как за джоинить upload_start - ну
 	uploading_state.store(false);
 }
 
+void Exchange::Exception_Exc(){ // 1 читатель исключений
+	bool excpected = false;
+	while (!exceptions.exception_flag.compare_exchange_strong(excpected, true, std::memory_order_acquire)
+		&& exceptions.deq_exceptions.empty()) { // Читатель один, поэтому никто не может уменьшить дек. 
+		std::this_thread::yield();					//Только читатель может удалить из дека данные когда они прочитаны
+	}
+	while (!exceptions.deq_exceptions.empty()) {
+		try {
+			auto exp = exceptions.deq_exceptions.back(); 
+			exceptions.deq_exceptions.pop_back(); // Только читатель когда прочитал, удаляет исключение чтобы дважды не читать его
+			std::rethrow_exception(exp);  // кидаем исключение 
+		}
+		catch (std::exception& exc) {
+			Log_Warn(exc.what()); // Из потока будет Warn исключения.
+		}
+	}
+	exceptions.exception_flag.store(false, std::memory_order_release);
+}
+
 void Exchange::uploading_data(){ // 1 писатель не беcпокоимся что здесь будет 2 и более потока!
 	try {
 		exchange_session.SetUrl(cpr::Url{ Api });
@@ -38,7 +57,12 @@ void Exchange::uploading_data(){ // 1 писатель не беcпокоимся что здесь будет 2 
 		}
 	}
 	catch (...) {
-
+		bool excpected = false;
+		while (!exceptions.exception_flag.compare_exchange_strong(excpected, true, std::memory_order_acquire)) { 
+			std::this_thread::yield();
+		}
+		exceptions.deq_exceptions.push_front(std::current_exception());
+		exceptions.exception_flag.store(false, std::memory_order_release);
 	}
 }
 
