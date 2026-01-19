@@ -10,12 +10,6 @@
 #include<thread>
 #include <atomic>
 #include<mutex>
-struct TokenInfo{
-	std::string symbolpair;
-	double price_of_sell;
-	double vol;
-	double price_of_buy;
-};
 class Exchange{
 public:
 	Exchange() :data_upload_count(0) {};
@@ -24,6 +18,12 @@ public:
 	void spin_upload_start(); // Включить обновление данных
 	void spin_upload_stop(); // Выключить обновление данных
 private:
+	struct TokenInfo { 
+		std::string symbolpair;
+		double price_of_sell;
+		double vol;
+		double price_of_buy;
+	};
 	std::atomic<bool> uploading_state{true}; // Включить - выключить обновление данных!
 	std::chrono::steady_clock::time_point time_now;
 	std::chrono::steady_clock::time_point upload_time;
