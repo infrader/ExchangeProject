@@ -16,7 +16,7 @@ public:
 	Exchange() :data_upload_count(0) {};
 	void set_api(std::string api_name);
 	std::string get_api(); 
-	void spin_upload_start(); // Включить обновление данных
+	void spin_upload_start(); // Включить обновление данных нужно просто добавить в другой поток метод там уже есть бесконечный цикл
 	void spin_upload_stop(); // Выключить обновление данных
 private:
 	struct TokenInfo {  // Структура для информации о токена с парса
@@ -36,14 +36,16 @@ private:
 	std::chrono::steady_clock::time_point upload_time;
 	int data_upload_count; // Сколько циклов обновления данных прошли
 	void uploading_data();
-	std::mutex move_data; // Мютекс который защищает всех читателей в момент когда у нас данные муваются 
-	std::condition_variable uploud_succses; // -Метка готовы ли наши данные или нет из api!
+	
+	std::atomic<bool> flag_upload{false};// флаг для предикада для читателей данных
+	
 	std::unordered_map<std::string, TokenInfo> data_upload; // обновление в фоне/ move(data_upload)
 	std::unordered_map<std::string, TokenInfo> data_cache; // - то чем мы работаем, 
 	std::string Api;
 	virtual std::unordered_map<std::string, TokenInfo> parse(cpr::Response exchange_response) = 0;
 	cpr::Session exchange_session;
 	cpr::Response exchange_response;
+	std::unordered_map<std::string, TokenInfo>& get_data(); // метод для получения данных инкапсулированный
 };
 
 #endif // !EXCHANGE_HPP

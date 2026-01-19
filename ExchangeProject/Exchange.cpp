@@ -14,7 +14,7 @@ void Exchange::spin_upload_start() // Мы запускаем в другом потоке spin_lock
 }
 
 void Exchange::spin_upload_stop() // Перед тем как за джоинить upload_start - нужно обязательно выполнить остановку upload_stop().
-{
+{								// иначе поток никогда не заджониться у нас бесконечный цикл завязан на переменной uploading_state
 	uploading_state.store(false);
 }
 
@@ -49,9 +49,10 @@ void Exchange::uploading_data(){ // 1 писатель не беcпокоимся что здесь будет 2 
 			time_now = std::chrono::steady_clock::now();
 			data_upload = parse(exchange_response);
 			std::atomic_signal_fence(std::memory_order_seq_cst); // Барьер set_cst чтобы время мы получили после Get точно и компилятор не путаялся
-			std::unique_lock<std::mutex> guard(move_data); // Мютекс флаг который говорит перестать работать с data_cache будеь свап
+			bool excpected = false;
+			flag_upload.compare_exchange_strong(excpected, true, std::memory_order_acquire);
 			data_cache = std::move(data_upload);
-			uploud_succses.notify_all();
+			flag_upload.store(false, std::memory_order_release);
 			upload_time = time_now + std::chrono::milliseconds(3000);
 			data_upload_count++;
 		}
@@ -64,5 +65,12 @@ void Exchange::uploading_data(){ // 1 писатель не беcпокоимся что здесь будет 2 
 		exceptions.deq_exceptions.push_front(std::current_exception());
 		exceptions.exception_flag.store(false, std::memory_order_release);
 	}
+}
+
+std::unordered_map<std::string, Exchange::TokenInfo>& Exchange::get_data(){
+	while (flag_upload.load(std::memory_order_acquire)) {
+		std::this_thread::sleep_for(std::chrono::microseconds(10));
+	}
+	return data_cache;
 }
 
