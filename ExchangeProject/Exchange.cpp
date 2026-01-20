@@ -47,13 +47,13 @@ void Exchange::uploading_data(){ // 1 писатель не беcпокоимся что здесь будет 2 
 			}
 			exchange_response = exchange_session.Get();
 			time_now = std::chrono::steady_clock::now();
+			upload_time = time_now + std::chrono::milliseconds(3000); // ставим сразу вдруг parse даст исключение
 			data_upload = parse(exchange_response);
 			std::atomic_signal_fence(std::memory_order_seq_cst); // Барьер set_cst чтобы время мы получили после Get точно и компилятор не путаялся
 			bool excpected = false;
 			flag_upload.compare_exchange_strong(excpected, true, std::memory_order_acquire);
 			data_cache = std::move(data_upload);
 			flag_upload.store(false, std::memory_order_release);
-			upload_time = time_now + std::chrono::milliseconds(3000);
 			data_upload_count++;
 		}
 	}

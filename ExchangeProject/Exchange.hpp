@@ -11,6 +11,8 @@
 #include <atomic>
 #include<mutex>
 #include<deque>
+#include<nlohmann/json.hpp>
+using namespace nlohmann;
 class Exchange{
 public:
 	Exchange() :data_upload_count(0) {};
@@ -18,7 +20,8 @@ public:
 	std::string get_api(); 
 	void spin_upload_start(); // Включить обновление данных нужно просто добавить в другой поток метод там уже есть бесконечный цикл
 	void spin_upload_stop(); // Выключить обновление данных
-private:
+	void Exception_Exc();
+protected:
 	struct TokenInfo {  // Структура для информации о токена с парса
 		std::string symbolpair;
 		double price_of_sell;
@@ -29,7 +32,6 @@ private:
 		std::deque<std::exception_ptr> deq_exceptions;
 		std::atomic<bool> exception_flag{false};
 	};
-	void Exception_Exc();
 	Exception_Exchange exceptions;
 	std::atomic<bool> uploading_state{true}; // Включить - выключить обновление данных!
 	std::chrono::steady_clock::time_point time_now;
