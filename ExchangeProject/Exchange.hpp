@@ -44,7 +44,7 @@ protected:
 	std::unordered_map<std::string, TokenInfo> data_upload; // обновление в фоне/ move(data_upload)
 	std::unordered_map<std::string, TokenInfo> data_cache; // - то чем мы работаем, 
 	std::string Api;
-	virtual std::unordered_map<std::string, TokenInfo> parse(cpr::Response exchange_response) = 0;
+	virtual std::unordered_map<std::string, TokenInfo> parse(const cpr::Response& exchange_response) = 0;
 	cpr::Session exchange_session;
 	cpr::Response exchange_response;
 	std::unordered_map<std::string, TokenInfo>& get_data(); // метод для получения данных инкапсулированный

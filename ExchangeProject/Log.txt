@@ -1,1 +1,0 @@
-[13:00:09] [WARN] KuCoin, status_code isn`t 200!

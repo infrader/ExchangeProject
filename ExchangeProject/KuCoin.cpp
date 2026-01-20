@@ -1,6 +1,6 @@
 #include "KuCoin.hpp"
 
-std::unordered_map<std::string, Exchange::TokenInfo> KuCoin::parse(cpr::Response exchange_response){
+std::unordered_map<std::string, Exchange::TokenInfo> KuCoin::parse(const cpr::Response& exchange_response){
     try {
         if (exchange_response.status_code != 200) {
             throw std::runtime_error("KuCoin, status_code isn`t 200!");
@@ -12,37 +12,37 @@ std::unordered_map<std::string, Exchange::TokenInfo> KuCoin::parse(cpr::Response
         if (!exchange_parse.contains("data")) {
             throw std::runtime_error("KuCoin, have not field data!");
         }
-        if (!exchange_parse["data"].is_array()) {
+        if (!exchange_parse["data"].is_object()) {
             throw std::runtime_error("KuCoin, field data isn`t array!");
         }
         if (exchange_parse["code"] != "200000") {
             throw std::runtime_error("KuCoin, status_code isn`t 200000!");
         }
+        if (!exchange_parse["data"].contains("ticker")) {
+            throw std::exception("[KuCoin] isn`t have field ticker.");
+        }
+        if (!exchange_parse["data"]["ticker"].is_array()) {
+            throw std::exception("[KuCoin] field isn`t array.");
+        }
         std::unordered_map<std::string, Exchange::TokenInfo> temp;
-        for (auto& item : exchange_parse["data"]) {
+        for (auto& item : exchange_parse["data"]["ticker"]) {
             try {
-                if (!item.contains("ticker")) {
-                    throw std::exception("[KuCoin] Token isn`t have field ticker. Skiped! Token #");
-                }
-                if (!item["ticker"].is_object()) {
-                    throw std::exception("[KuCoin] Token field ticker isn`t object. Skiped! Token #");
-                }
-                if (!item["ticker"].contains("symbol")) {
+                if (!item.contains("symbol")) {
                     throw std::exception("[KuCoin] Token isn`t have field symbol. Skiped! Token #");
                 }
-                if (!item["ticker"].contains("buy")) {
+                if (!item.contains("buy")) {
                     throw std::exception("[KuCoin] Token isn`t have field buy. Skiped! Token #");
                 }
-                if (!item["ticker"].contains("sell")) {
+                if (!item.contains("sell")) {
                     throw std::exception("[KuCoin] Token isn`t have field sell. Skiped! Token #");
                 }
-                if (!item["ticker"].contains("vol")) {
+                if (!item.contains("vol")) {
                     throw std::exception("[KuCoin] Token isn`t have field vol. Skiped! Token #");
                 }
-                std::string symbol = item["ticker"]["symbol"].get<std::string>();
-                std::string buy_str = item["ticker"]["buy"].get<std::string>();
-                std::string sell_str = item["ticker"]["sell"].get<std::string>();
-                std::string vol_str = item["ticker"]["vol"].get<std::string>();
+                std::string symbol = item["symbol"].get<std::string>();
+                std::string buy_str = item["buy"].get<std::string>();
+                std::string sell_str = item["sell"].get<std::string>();
+                std::string vol_str = item["vol"].get<std::string>();
                 try {
                     double buy = std::stod(buy_str);
                     double sell = std::stod(sell_str);
@@ -68,12 +68,11 @@ std::unordered_map<std::string, Exchange::TokenInfo> KuCoin::parse(cpr::Response
                 Log_Warn(ex.what() + std::to_string(contains));
                 ++skiped;
             }
-        }
-
+        } 
+        return temp;
     }
     catch (...) {
         Log_Critical("KuCoin, critical error!");
         std::rethrow_exception(std::current_exception());
     }
-    
 }

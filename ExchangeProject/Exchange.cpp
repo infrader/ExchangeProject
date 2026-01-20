@@ -39,15 +39,14 @@ void Exchange::Exception_Exc(){ // 1 читатель исключений
 
 void Exchange::uploading_data(){ // 1 писатель не беcпокоимся что здесь будет 2 и более потока!
 	try {
-		exchange_session.SetUrl(cpr::Url{ Api });
-		exchange_session.SetTimeout({ 300 });
 		while (uploading_state) {
-			while (time_now <= upload_time && data_upload_count != 0) {
+			while (std::chrono::steady_clock::now() <= upload_time && data_upload_count != 0) {
 				std::this_thread::yield();
 			}
+			exchange_session.SetUrl(cpr::Url{ Api });
+			exchange_session.SetTimeout({ 3000 });
 			exchange_response = exchange_session.Get();
-			time_now = std::chrono::steady_clock::now();
-			upload_time = time_now + std::chrono::milliseconds(3000); // ставим сразу вдруг parse даст исключение
+			upload_time = std::chrono::steady_clock::now() + std::chrono::milliseconds(3000); 
 			data_upload = parse(exchange_response);
 			std::atomic_signal_fence(std::memory_order_seq_cst); // Барьер set_cst чтобы время мы получили после Get точно и компилятор не путаялся
 			bool excpected = false;
@@ -68,6 +67,9 @@ void Exchange::uploading_data(){ // 1 писатель не беcпокоимся что здесь будет 2 
 }
 
 std::unordered_map<std::string, Exchange::TokenInfo>& Exchange::get_data(){
+	while (data_upload_count == 0) {
+		std::this_thread::sleep_for(std::chrono::microseconds(10));
+	}
 	while (flag_upload.load(std::memory_order_acquire)) {
 		std::this_thread::sleep_for(std::chrono::microseconds(10));
 	}
