@@ -36,7 +36,7 @@ protected:
 	std::atomic<bool> uploading_state{true}; // Включить - выключить обновление данных!
 	std::chrono::steady_clock::time_point time_now;
 	std::chrono::steady_clock::time_point upload_time;
-	std::atomic<int> data_upload_count; // Сколько циклов обновления данных прошли
+	std::atomic<int> data_upload_count{0}; // Сколько циклов обновления данных прошли
 	void uploading_data();
 	
 	std::atomic<bool> flag_upload{false};// флаг для предикада для читателей данных
@@ -45,8 +45,6 @@ protected:
 	std::unordered_map<std::string, TokenInfo> data_cache; // - то чем мы работаем, 
 	std::string Api;
 	virtual std::unordered_map<std::string, TokenInfo> parse(const cpr::Response& exchange_response) = 0;
-	cpr::Session exchange_session;
-	cpr::Response exchange_response;
 	std::unordered_map<std::string, TokenInfo>& get_data(); // метод для получения данных инкапсулированный
 };
 

@@ -43,6 +43,8 @@ void Exchange::uploading_data(){ // 1 писатель не беcпокоимся что здесь будет 2 
 			while (std::chrono::steady_clock::now() <= upload_time && data_upload_count != 0) {
 				std::this_thread::yield();
 			}
+			cpr::Session exchange_session;
+			cpr::Response exchange_response;
 			exchange_session.SetUrl(cpr::Url{ Api });
 			exchange_session.SetTimeout({ 3000 });
 			exchange_response = exchange_session.Get();

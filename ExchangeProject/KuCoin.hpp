@@ -4,11 +4,7 @@ class KuCoin :
     public Exchange
 {
 public:
-    std::pair<std::string, TokenInfo> find_token(const std::string& token) {
-        auto temp = get_data();
-       auto it = temp.find(token);
-       return *it;
-    }
+    TokenInfo find_token(const std::string& token);
 private:
     int skiped;
     int contains;

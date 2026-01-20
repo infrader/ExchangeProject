@@ -1,5 +1,16 @@
 #include "KuCoin.hpp"
 
+Exchange::TokenInfo KuCoin::find_token(const std::string& token)
+{
+        auto& temp = get_data();
+        auto it = temp.find(token);
+        if (it != temp.end()) {
+            return it->second;
+        }
+        Log_Critical("Error find_token!");
+        throw std::exception("Error find_token!");
+}
+
 std::unordered_map<std::string, Exchange::TokenInfo> KuCoin::parse(const cpr::Response& exchange_response){
     try {
         if (exchange_response.status_code != 200) {
