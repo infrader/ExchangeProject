@@ -1,12 +1,22 @@
 //
 #include"Logger.hpp"
+std::mutex Logger::mtx_intence;
+std::atomic<Logger*> Logger::intence{ nullptr };
 
-Logger& Logger::GetIntence() {
-	static Logger intence;
-	return intence;
+Logger* Logger::GetIntence() {
+    Logger* ptr = intence.load(std::memory_order_acquire);
+    if (ptr == nullptr) {
+        std::unique_lock<std::mutex> guard(mtx_intence);
+        ptr = intence.load(std::memory_order_relaxed);
+        if (ptr == nullptr) {
+            ptr = new Logger;
+            intence.store(ptr, std::memory_order_release);
+        }
+    }
+    return ptr;
 }
-void Logger::setLogger_file(std::string msg){
-    nameFile = msg;
+void Logger::setLogger_file(std::string msg) {
+    nameFile = msg; // это не разделяеммый ресурс 1 файл
 }
 //==============Абстрактные классы для log=======
 void Logger::info(const std::string& msg)
@@ -30,6 +40,7 @@ void Logger::setCurrenLevel(State_Level lvl){
 //================================================
 //======log()=====================================
 void Logger::log(State_Level level, const std::string& msg){
+    std::unique_lock<std::mutex> guard(mtx_file); // Перекрываю все мютексом
     if (static_cast<int>(currentLevel) > static_cast<int>(level)) {
         std::string msg_format = std::format("[{}] [{}] {}",
             Logger::getCurrentTime(),
@@ -83,3 +94,4 @@ const std::string& Logger::LeveltoString(State_Level level) // функция чтобы в т
     return result->second;
 }
 //
+
