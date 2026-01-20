@@ -36,7 +36,7 @@ protected:
 	std::atomic<bool> uploading_state{true}; // Включить - выключить обновление данных!
 	std::chrono::steady_clock::time_point time_now;
 	std::chrono::steady_clock::time_point upload_time;
-	int data_upload_count; // Сколько циклов обновления данных прошли
+	std::atomic<int> data_upload_count; // Сколько циклов обновления данных прошли
 	void uploading_data();
 	
 	std::atomic<bool> flag_upload{false};// флаг для предикада для читателей данных

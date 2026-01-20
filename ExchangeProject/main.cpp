@@ -13,7 +13,7 @@ int main() {// Главная функция main
 		auto it = ku.find_token("BTC-USDT");
 		std::cout << "=============\nName: " << it.first << "\nPrice of sell: " << it.second.price_of_sell << "\nPrice of buy: "
 			<< it.second.price_of_buy << "\nVol: " << it.second.vol << "\n=============\n";
-		std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		std::this_thread::sleep_for(std::chrono::milliseconds(200));
 	}
 }
 //
