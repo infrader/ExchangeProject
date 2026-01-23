@@ -8,7 +8,7 @@ Exchange::TokenInfo KuCoin::find_token(const std::string& token)
             return it->second;
         }
         Log_Critical("Error find_token!");
-        throw std::exception("Error find_token!");
+        throw std::runtime_error("Error find_token!");
 }
 
 std::unordered_map<std::string, Exchange::TokenInfo> KuCoin::parse(const cpr::Response& exchange_response){
@@ -30,25 +30,25 @@ std::unordered_map<std::string, Exchange::TokenInfo> KuCoin::parse(const cpr::Re
             throw std::runtime_error("KuCoin, status_code isn`t 200000!");
         }
         if (!exchange_parse["data"].contains("ticker")) {
-            throw std::exception("[KuCoin] isn`t have field ticker.");
+            throw std::runtime_error("[KuCoin] isn`t have field ticker.");
         }
         if (!exchange_parse["data"]["ticker"].is_array()) {
-            throw std::exception("[KuCoin] field isn`t array.");
+            throw std::runtime_error("[KuCoin] field isn`t array.");
         }
         std::unordered_map<std::string, Exchange::TokenInfo> temp;
         for (auto& item : exchange_parse["data"]["ticker"]) {
             try {
                 if (!item.contains("symbol")) {
-                    throw std::exception("[KuCoin] Token isn`t have field symbol. Skiped! Token #");
+                    throw std::runtime_error("[KuCoin] Token isn`t have field symbol. Skiped! Token #");
                 }
                 if (!item.contains("buy")) {
-                    throw std::exception("[KuCoin] Token isn`t have field buy. Skiped! Token #");
+                    throw std::runtime_error("[KuCoin] Token isn`t have field buy. Skiped! Token #");
                 }
                 if (!item.contains("sell")) {
-                    throw std::exception("[KuCoin] Token isn`t have field sell. Skiped! Token #");
+                    throw std::runtime_error("[KuCoin] Token isn`t have field sell. Skiped! Token #");
                 }
                 if (!item.contains("vol")) {
-                    throw std::exception("[KuCoin] Token isn`t have field vol. Skiped! Token #");
+                    throw std::runtime_error("[KuCoin] Token isn`t have field vol. Skiped! Token #");
                 }
                 std::string symbol = item["symbol"].get<std::string>();
                 std::string buy_str = item["buy"].get<std::string>();

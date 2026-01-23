@@ -14,6 +14,7 @@ int main() {// Главная функция main
 			auto it = ku.find_token("BTC-USDT");
 			std::cout << "=============\nName: " << it.symbolpair << "\nPrice of sell: " << it.price_of_sell << "\nPrice of buy: "
 				<< it.price_of_buy << "\nVol: " << it.vol << "\n=============\n";
+				std::cout.flush(); 
 		}
 		catch (...) {
 			std::this_thread::sleep_for(std::chrono::milliseconds(50));
